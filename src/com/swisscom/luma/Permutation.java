@@ -2,31 +2,73 @@ package com.swisscom.luma;
 
 import java.util.Arrays;
 
+
 public class Permutation {
-	private int[] elements;
+	public int[] elements;
+	public int maxElement;
+	
+	private int position = 0;
+	private boolean firstNext = true;
 
 	public Permutation(int numberOfElements) {
 		elements = new int[numberOfElements];
 
 		for (int i = 0; i < numberOfElements; i++) {
-			elements[i] = i + 1;
+			elements[i] = i;
 		}
+		maxElement = elements[elements.length - 1];
 	}
 	
 	public Permutation(int [] elements) {
-		Arrays.sort(elements);
-		this.elements = elements;		
+		int [] tmp = new int[elements.length];
+		for (int i = 0; i < elements.length; i ++){
+			tmp[i] = elements[i];
+		}
+		Arrays.sort(tmp);
+		this.elements = elements;	
+		maxElement = tmp[tmp.length - 1];
 	}
 
+	public boolean incPosition() {
+		if (position >= elements.length) {
+			return false;
+		}
+		position ++;
+		return true;
+	}
+	
+	public boolean decPosition() {
+		if (position < 0) {
+			return false;
+		}
+		position --;
+		return true;
+	}
+	
+	public int getPosition() {
+		return position;
+	}
+	
+	public int getElement() {
+		return elements[position];
+	}
+	
 	public int[] getElements() {
 		return elements;
 	}
-
-	public void printElements() {
-		System.out.println("elements: " + Arrays.toString(elements));
+	
+	public void reset(int indexC) {
+		int[] g = getSubSet(indexC);
+		Arrays.sort(g);
+		substituteSubSet(indexC, g);
+		firstNext = true;
 	}
 
-	public boolean calculateNext() {
+	public  boolean next() {
+		if (firstNext) {
+			firstNext = false;
+			return true;
+		}
 		int indexA = getSwapPos();
 		if (indexA != -1) {
 			int[] g = getSubSet(indexA);
@@ -43,11 +85,22 @@ public class Permutation {
 		}
 	}
 	
-	public boolean calculateNext(int indexC) {
+	public boolean next(int indexC) {
+		if (firstNext) {
+			firstNext = false;
+			return true;
+		}
 		int indexA = getSwapPos();
-		if (indexA != -1 && indexA >= indexC) {
+		// if ((indexA != -1 && indexA >= indexC) && elements[indexC] != maxElement) {
+		if ((indexA != -1 && indexA >= indexC)) {
+
 			int[] g = getSubSet(indexC);
 			Arrays.sort(g);
+			
+			if (elements[indexC] > g[g.length - 1]) {
+				return false;
+			}
+			
 			substituteSubSet(indexC, g);
 			int indexB = getElementIndexInSubSet(elements[indexC], indexC, g);
 			swapAB(indexC, indexB);
@@ -62,7 +115,7 @@ public class Permutation {
 
 	private int getSwapPos() {
 		int indexA = -1;
-		for (int i = elements.length - 1; i > 0; i--) {
+		for (int i = elements.length - 1; i >= 0; i--) {
 			if (i == 0) {
 				break;
 			}
